@@ -177,6 +177,14 @@ while [[ $# -gt 0 ]]; do  # $# is the number of script arguments
 			fi
 			shift
 			;;
+		-c=?*|--config=?*)  # format: --config="config.txt"
+			IN_STRING+=${1#*=}
+			shift
+			;;
+		-c=|--config=)  # format error: --string= "config.txt"
+			printf "bad format\n"
+			exit 1
+			;;
 		-g|--greeting)
 			shift
 			if [[ $# -gt 0 ]]; then
@@ -187,6 +195,14 @@ while [[ $# -gt 0 ]]; do  # $# is the number of script arguments
 			fi
 			shift
 			;;
+		-g=?*|--greeting=?*)  # format: --config="Hello, world!"
+			IN_STRING+=${1#*=}
+			shift
+			;;
+		-g=|--greeting=)  # format error: --string= "Hello, world!"
+			printf "bad format\n"
+			exit 1
+			;;
 		-h|--help)
 			usage
 			#printf "${USAGE}\n"
@@ -196,7 +212,7 @@ while [[ $# -gt 0 ]]; do  # $# is the number of script arguments
 			printf "${SCRIPT_LICENSE}\n"
 			exit
 			;;
-		-s|--string)
+		-s|--string)  # format: --string "hello there"
 			shift
 			if [[ $# -gt 0 ]]; then
 				IN_STRING+="${1}"
@@ -206,6 +222,14 @@ while [[ $# -gt 0 ]]; do  # $# is the number of script arguments
 			fi
 			shift
 			;;
+		-s=?*|--string=?*)  # format: --string="hello there"
+			IN_STRING+=${1#*=}
+			shift
+			;;
+		-s=|--string=)  # format error: --string= "hello there"
+			printf "bad format\n"
+			exit 1
+			;;
 		-v|--version)
 			printf "${SCRIPT_NAME} ${SCRIPT_VERSION}\n"
 			exit
@@ -214,6 +238,10 @@ while [[ $# -gt 0 ]]; do  # $# is the number of script arguments
 		debug|greet)
 			COMMAND="${1}"
 			shift
+			;;
+		-?*)
+			printf "Unknown flag: ${1}\n"
+			exit 1
 			;;
 		*)
 			printf "Unknown command: ${1}\n"
