@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
 # Script Information ##########################################################
-#
-# This information may also appear in the Script Metadata section.
-#
+
 # Script Name: bashplate
 # Description: bashplate - is a script template with several useful features:
 # - error handling
@@ -12,7 +10,8 @@
 # - TODO config file
 # - TODO logging
 # - TODO debug
-# - TODO parameter expansion substitution ${STR_VAR//old/new}
+# - parameter expansion substitution ${STR_VAR//old/new}
+# - command processing (non-flag)
 # - TODO GNU parallel
 # - cleanup upon exit
 #
@@ -54,6 +53,7 @@ trap cleanup SIGINT  # generated on ctrl-c
 
 SCRIPT_NAME="bashplate"
 SCRIPT_VERSION="0.0.1"
+SCRIPT_RELEASE="main"
 SCRIPT_LICENSE="gplv3"
 SYSTEM_DOPE_VERSION="0.0.1"
 SCRIPT_HOMEPAGE="https://github.com/systemdope/bashplate"
@@ -63,9 +63,14 @@ AUTHOR_EMAIL=""
 
 # Global Variables ############################################################
 
-CONFIG_PATH=""
-GREETING="Hello, World!"  # default greeting
-TMP_DIR=""
+# Variables that should be defined later in the script
+CONFIG_PATH=""  # path to configuration file
+TMP_DIR=""  # temporary working directory, created later in this script
+COMMAND=""  # command passed to this script
+IN_STRING=""  # user-input string
+
+# Variables that hsould be defined HERE
+GREETING="Hello, World!"  # a string used for testing
 
 # Usage #######################################################################
 #
@@ -73,24 +78,34 @@ TMP_DIR=""
 
 USAGE="Usage: ${SCRIPT_NAME} [OPTION]...
 Description: ${DESCRIPTION}
+
 Example: ${SCRIPT_NAME}
 Output:
 
+Note: To display a literal %%, you must use %%%%
+
 Commands:
+  debug        display debug information
+  greet        display the greeting
 
 Flags:
   -c, --config=CONFIG_PATH  define config file path
   -g, --greeting=GREETING   defing GREETING
   -h, --help                print this help message
       --license             print license information
+  -s, --string=STRING       define a strings
   -v, --version             print this script's name and version
+
+String Substitutions:
+  %%t    TERM      terminal name
+  %%u    USER      user name
+
 
 Author: ${AUTHOR_NAME}
 Source: ${SCRIPT_HOMEPAGE}"  # notice the closing quote on the last line here
 
 # Function Declarations #######################################################
 #
-# Tip: List all functions/descriptions via "grep Description bashplate.sh"
 # TODO improve how functions return/exit
 
 # Description: permaloop - loops forever, for testing and debugging
@@ -122,12 +137,27 @@ function cleanup {
 	exit
 }
 
+# Description: greet - display a greeting
+# Arguments: none
+# Returns: none
+function greet {
+	printf "this is the greeting function\n"
+}
+
 # Description: usage - displays usage information
 # Arguments: none
 # Returns: none
 function usage {
 	printf "${USAGE}\n"
 	exit 0
+}
+
+# Description: debug - displays debug information
+# Arguments: none
+# Returns: none
+function debug {
+	printf "debug function here!\n"
+	return 0
 }
 
 # Argument Processing #########################################################
@@ -166,34 +196,76 @@ while [[ $# -gt 0 ]]; do  # $# is the number of script arguments
 			printf "${SCRIPT_LICENSE}\n"
 			exit
 			;;
+		-s|--string)
+			shift
+			if [[ $# -gt 0 ]]; then
+				IN_STRING+="${1}"
+			else
+				printf "missing argument\n"
+				exit 1
+			fi
+			shift
+			;;
 		-v|--version)
 			printf "${SCRIPT_NAME} ${SCRIPT_VERSION}\n"
 			exit
 			;;
 	# Non-flag Arguments
+		debug|greet)
+			COMMAND="${1}"
+			shift
+			;;
 		*)
 			printf "Unknown command: ${1}\n"
-			exit
+			exit 1
 			;;
 	esac
 done
+# Exit if COMMAND is required and not set
+#if [[ -z ${COMMAND} ]]; then
+#	printf "no command set\n"
+#	exit
+#fi
+
+# Command Processing ##########################################################
+#
+# TODO create a command processing function
+
+case ${COMMAND} in
+	debug) debug ;;
+	greet) greet ;;
+esac
+
+# String Substitution #########################################################
+#
+# TODO create a string substitution function
+
+IN_STRING="${IN_STRING//\%t/${TERM}}"  # replace %t with $TERM
+IN_STRING="${IN_STRING//\%u/${USER}}"  # replace %u with $USER
 
 # Main Logic ##################################################################
+#
+# TODO process commands (e.g. greet). See isdiwctl for reference.
 
 # Create a temporary directory
 TMP_DIR=$(mktemp -d) || { echo "Failed to create directory"; exit 1; }
+printf "TMP_DIR: ${TMP_DIR}\n"
 
 # Create a temporary file within the temporary directory
-touch "${TMP_DIR}/greet.txt"
+GREET_FILE="${TMP_DIR}/greet.txt"
+$(touch "${GREET_FILE}") || { echo "Failed to create file"; exit 1; }
+printf "GREET_FILE: ${GREET_FILE}\n"
 
 # Send greeting to temporary file then read from file and print
-printf "${GREETING}" >  "${TMP_DIR}/greet.txt"
+printf "${GREETING}" >  "${GREET_FILE}"
 printf "GREETING: "  # Print the contents of the greeting file
-cat "${TMP_DIR}/greet.txt"
+cat "${GREET_FILE}"
 printf "\n"
 
 # TODO read and process config file
 printf "CONFIG_PATH: ${CONFIG_PATH}\n"
+
+printf "IN_STRING: ${IN_STRING}\n"
 
 permaloop
 
