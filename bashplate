@@ -64,6 +64,26 @@ DESCRIPTION="Template for SystemDope bash scripts"
 AUTHOR_NAME=""
 AUTHOR_EMAIL=""
 
+# Colors ######################################################################
+#
+# The variable ${NORMAL} will reset the tput properties
+
+BLACK=$(tput setaf 0)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+LIME_YELLOW=$(tput setaf 190)
+POWDER_BLUE=$(tput setaf 153)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+WHITE=$(tput setaf 7)
+BRIGHT=$(tput bold)
+NORMAL=$(tput sgr0)
+BLINK=$(tput blink)
+REVERSE=$(tput smso)
+UNDERLINE=$(tput smul)
+
 # Global Variables ############################################################
 
 # Variables that should be defined later in the script
@@ -114,8 +134,18 @@ Source: ${SCRIPT_HOMEPAGE}"  # notice the closing quote on the last line here
 # Arguments: none
 # Returns: none
 function permaloop {
+	local INVERSION="0"
+	local MYCOLOR=""
 	while true; do
-		printf "This loop runs forever... Press Ctrl + C to stop.\n"
+		if [[ "${INVERSION}" == "0" ]]; then
+			INVERSION="1"
+			MYCOLOR=""
+		else
+			INVERSION="0"
+			MYCOLOR="${REVERSE}"
+		fi
+			
+		printf "\rTo break infinite loop. ${MYCOLOR}Press Ctrl + C${NORMAL}."
 		sleep 1
 	done
 }
@@ -289,23 +319,23 @@ IN_STRING="${IN_STRING//\%u/${USER}}"  # replace %u with $USER
 
 # Create a temporary directory
 TMP_DIR=$(mktemp -d) || { echo "Failed to create directory"; exit 1; }
-printf "TMP_DIR: ${TMP_DIR}\n"
+printf "TMP_DIR: ${RED}${TMP_DIR}${NORMAL}\n"
 
 # Create a temporary file within the temporary directory
 GREET_FILE="${TMP_DIR}/greet.txt"
 $(touch "${GREET_FILE}") || { echo "Failed to create file"; exit 1; }
-printf "GREET_FILE: ${GREET_FILE}\n"
+printf "GREET_FILE: ${GREEN}${GREET_FILE}${NORMAL}\n"
 
 # Send greeting to temporary file then read from file and print
 printf "${GREETING}" >  "${GREET_FILE}"
-printf "GREETING: "  # Print the contents of the greeting file
+printf "GREETING: ${BLUE}"  # Print the contents of the greeting file
 cat "${GREET_FILE}"
-printf "\n"
+printf "${NORMAL}\n"
 
 # TODO read and process config file
-printf "CONFIG_PATH: ${CONFIG_PATH}\n"
+printf "CONFIG_PATH: ${MAGENTA}${CONFIG_PATH}${NORMAL}\n"
 
-printf "IN_STRING: ${IN_STRING}\n"
+printf "IN_STRING: ${YELLOW}${IN_STRING}${NORMAL}\n"
 
 permaloop
 
