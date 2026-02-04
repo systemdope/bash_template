@@ -105,8 +105,6 @@ Description: ${DESCRIPTION}
 Example: ${SCRIPT_NAME}
 Output:
 
-Note: To display a literal %%, you must use %%%%
-
 Commands:
   debug        display debug information
   greet        display the greeting
@@ -120,8 +118,8 @@ Flags:
   -v, --version             print this script's name and version
 
 String Substitutions:
-  %%t    TERM      terminal name
-  %%u    USER      user name
+  %t    TERM      terminal name
+  %u    USER      user name
 
 Author: ${AUTHOR_NAME}
 Source: ${SCRIPT_HOMEPAGE}"  # notice the closing quote on the last line here
@@ -168,7 +166,7 @@ function cleanup {
 		printf "no directory ${TMP_DIR}\n"
 	fi
 	# TODO exit using the the error code of whatever calls cleanup
-	exit $exit_code
+	exit "$exit_code"
 }
 
 # Description: greet - display a greeting
@@ -182,7 +180,7 @@ function greet {
 # Arguments: none
 # Returns: none
 function usage {
-	printf "${USAGE}\n"
+	printf "%s\n" "${USAGE}"  # keep variables outside format strings
 }
 
 # Description: debug - displays debug information
@@ -323,7 +321,7 @@ printf "TMP_DIR: ${RED}${TMP_DIR}${NORMAL}\n"
 
 # Create a temporary file within the temporary directory
 GREET_FILE="${TMP_DIR}/greet.txt"
-$(touch "${GREET_FILE}") || { echo "Failed to create file"; exit 1; }
+touch "${GREET_FILE}" || { echo "Failed to create file"; exit 1; }
 printf "GREET_FILE: ${GREEN}${GREET_FILE}${NORMAL}\n"
 
 # Send greeting to temporary file then read from file and print
