@@ -159,6 +159,7 @@ function permaloop {
 # Arguments: none
 # Returns: 0 if successful, non-zero otherwise
 function cleanup {
+	local exit_code=$?
 	printf "cleaning up...\n"
 	# Remove Temporary Directory
 	if [[ -d "${TMP_DIR}" ]]; then
@@ -166,7 +167,8 @@ function cleanup {
 	else
 		printf "no directory ${TMP_DIR}\n"
 	fi
-	exit
+	# TODO exit using the the error code of whatever calls cleanup
+	exit $exit_code
 }
 
 # Description: greet - display a greeting
@@ -181,7 +183,6 @@ function greet {
 # Returns: none
 function usage {
 	printf "${USAGE}\n"
-	exit 0
 }
 
 # Description: debug - displays debug information
@@ -189,7 +190,6 @@ function usage {
 # Returns: none
 function debug {
 	printf "debug function here!\n"
-	return 0
 }
 
 # Argument Processing #########################################################
@@ -241,12 +241,12 @@ while [[ $# -gt 0 ]]; do  # $# is the number of script arguments
 		-h|--help)
 			usage
 			#printf "${USAGE}\n"
-			exit
+			exit 0
 			;;
 		# License
 		--license)
 			printf "${SCRIPT_LICENSE}\n"
-			exit
+			exit 0
 			;;
 		# user-input string
 		-s|--string)  # format: --string "hello there"
@@ -270,7 +270,7 @@ while [[ $# -gt 0 ]]; do  # $# is the number of script arguments
 		# software version
 		-v|--version)
 			printf "${SCRIPT_NAME} ${SCRIPT_VERSION}\n"
-			exit
+			exit 0
 			;;
 	# Non-flag Arguments
 		# debug output
@@ -293,7 +293,7 @@ done
 # Exit if COMMAND is required and not set
 #if [[ -z ${COMMAND} ]]; then
 #	printf "no command set\n"
-#	exit
+#	exit 1
 #fi
 
 # Command Processing ##########################################################
