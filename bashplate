@@ -38,6 +38,8 @@
 # TODO style headers with one blank line or empty comment line below
 
 # Error Handling ##############################################################
+#
+# Try the static debugger shellcheck
 
 # Bash Settings. See 'man bash' for more information
 set -o errexit  # -e: exit immediately if a pipeline fails
@@ -68,21 +70,36 @@ AUTHOR_EMAIL=""
 #
 # The variable ${NORMAL} will reset the tput properties
 
-BLACK=$(tput setaf 0)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-LIME_YELLOW=$(tput setaf 190)
-POWDER_BLUE=$(tput setaf 153)
-BLUE=$(tput setaf 4)
-MAGENTA=$(tput setaf 5)
-CYAN=$(tput setaf 6)
-WHITE=$(tput setaf 7)
-BRIGHT=$(tput bold)
-NORMAL=$(tput sgr0)
-BLINK=$(tput blink)
-REVERSE=$(tput smso)
-UNDERLINE=$(tput smul)
+
+if [[ -t 1 ]]; then  # verify we are in a terminal
+#	BLACK=$(tput setaf 0)
+	RED=$(tput setaf 1)
+	GREEN=$(tput setaf 2)
+	YELLOW=$(tput setaf 3)
+	BLUE=$(tput setaf 4)
+	MAGENTA=$(tput setaf 5)
+#	CYAN=$(tput setaf 6)
+#	WHITE=$(tput setaf 7)
+ #	BRIGHT=$(tput bold)
+	NORMAL=$(tput sgr0)
+#	BLINK=$(tput blink)
+	REVERSE=$(tput smso)
+#	UNDERLINE=$(tput smul)
+else
+#	BLACK=""
+	RED=""
+	GREEN=""
+	YELLOW=""
+	BLUE=""
+	MAGENTA=""
+#	CYAN=""
+#	WHITE=""
+#	BRIGHT=""
+	NORMAL=""
+#	BLINK=""
+	REVERSE=""
+#	UNDERLINE=""
+fi
 
 # Global Variables ############################################################
 
@@ -326,14 +343,14 @@ printf "GREET_FILE: ${GREEN}${GREET_FILE}${NORMAL}\n"
 
 # Send greeting to temporary file then read from file and print
 printf "${GREETING}" >  "${GREET_FILE}"
-printf "GREETING: ${BLUE}"  # Print the contents of the greeting file
+printf "GREETING: %s" "${BLUE}"  # Print the contents of the greeting file
 cat "${GREET_FILE}"
-printf "${NORMAL}\n"
+printf "%s\n" "${NORMAL}"
 
 # TODO read and process config file
-printf "CONFIG_PATH: ${MAGENTA}${CONFIG_PATH}${NORMAL}\n"
+printf "CONFIG_PATH: %s%s%s\n" "${MAGENTA}" "${CONFIG_PATH}" "${NORMAL}"
 
-printf "IN_STRING: ${YELLOW}${IN_STRING}${NORMAL}\n"
+printf "IN_STRING: %s%s%s\n" "${YELLOW}" "${IN_STRING}" "${NORMAL}"
 
 permaloop
 
